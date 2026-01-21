@@ -3,37 +3,23 @@ import cors from 'cors';
 import router from './routes/appRouter.js';
 
 const app = express();
-// 1. يفضل دائماً وضع كلمة المرور في متغير بيئة (Environment Variable)
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Shi159357fa';
 
-// 2. تحديث إعدادات CORS للسماح لموقعك فقط بالوصول للبيانات
+// 1. تحديث إعدادات CORS للسماح لموقعك بالوصول
 app.use(cors({
     origin: 'https://shifasmile.com',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'x-admin-password']
+    allowedHeaders: ['Content-Type'] // تم إزالة x-admin-password من هنا
 }));
 
 app.use(express.json());
 
-// --- وظيفة الحماية (Auth Middleware) ---
-const checkAuth = (req, res, next) => {
-    const userPass = req.headers['x-admin-password'];
-    
-    if (userPass === ADMIN_PASSWORD) {
-        next();
-    } else {
-        console.warn(`محاولة وصول غير مصرح بها من: ${req.ip}`);
-        res.status(401).json({ error: "Access Denied: Wrong Password" });
-    }
-};
+// 2. تم إزالة وظيفة الحماية (checkAuth) لفتح الوصول المباشر
+// تم ربط الراوتر مباشرة بـ /api بدون middleware الحماية
+app.use('/api', router);
 
-// تطبيق الحماية
-app.use('/api', checkAuth, router);
-
-// 3. تغيير المنفذ (Port) ليتناسب مع إعدادات الاستضافة
-// الاستضافات غالباً ما تحدد المنفذ تلقائياً عبر process.env.PORT
+// 3. إعداد المنفذ ليتناسب مع Railway
 const PORT = process.env.PORT || 5001;
 
-app.listen(PORT, () => {
-    console.log(`السيرfer يعمل بنجاح 🚀`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`السيرفر يعمل بنجاح وبدون كلمة مرور 🚀`);
 });
