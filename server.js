@@ -7,8 +7,9 @@ const app = express();
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Shi159357fa';
 
 // 2. تحديث إعدادات CORS للسماح لموقعك فقط بالوصول للبيانات
+const cors = require('cors');
 app.use(cors({
-    origin: 'https://shifasmile.com',
+    origin: 'https://shifasmile.com', // رابط موقعك الفعلي
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'x-admin-password']
 }));
@@ -38,3 +39,4 @@ app.listen(PORT, () => {
     console.log(`السيرfer يعمل بنجاح 🚀`);
 
 });
+
