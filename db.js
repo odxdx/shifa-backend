@@ -1,21 +1,26 @@
-import mysql from 'mysql2';
+import mysql from 'mysql2/promise'; // لاحظ إضافة /promise لاستخدام async/await
 
-const db = mysql.createConnection({
+const db = mysql.createPool({
     host: '193.203.168.81',
     user: 'u634390245_shifa',
-    password: 'Shifasmile123', // اتركها فارغة إذا لم تكن قد وضعت كلمة سر لـ XAMPP
+    password: 'Shifasmile123',
     database: 'u634390245_shifa',
-    port: 3306
+    port: 3306,
+    waitForConnections: true,
+    connectionLimit: 10, // يسمح بـ 10 اتصالات متزامنة
+    queueLimit: 0,
+    enableKeepAlive: true, // يمنع انقطاع الاتصال عند الخمول
+    keepAliveInitialDelay: 10000
 });
 
-db.connect((err) => {
-    if (err) {
-        console.error('خطأ في الاتصال بقاعدة البيانات:', err);
-        return;
-    }
-    console.log('تم الاتصال بقاعدة بيانات shifa بنجاح ✅');
-});
-
+// اختبار الاتصال الأولي (اختياري للـ Logs)
+db.getConnection()
+    .then(connection => {
+        console.log('تم الاتصال بقاعدة بيانات shifa بنجاح باستخدام Pool ✅');
+        connection.release();
+    })
+    .catch(err => {
+        console.error('خطأ في الاتصال بقاعدة البيانات:', err.message);
+    });
 
 export default db;
-
