@@ -4,7 +4,7 @@ import router from './routes/appRouter.js';
 
 const app = express();
 // 1. يفضل دائماً وضع كلمة المرور في متغير بيئة (Environment Variable)
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'AAA2202';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Shi159357fa';
 
 // 2. تحديث إعدادات CORS للسماح لموقعك فقط بالوصول للبيانات
 app.use(cors({
@@ -36,4 +36,5 @@ const PORT = process.env.PORT || 5001;
 
 app.listen(PORT, () => {
     console.log(`السيرfer يعمل بنجاح 🚀`);
+
 });
