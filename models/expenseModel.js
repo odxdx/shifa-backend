@@ -1,25 +1,26 @@
 import db from "../db.js";
 
 // إضافة مصروف
-export const addExpense = (item, amount, date) => {
-  return new Promise((resolve, reject) => {
-    // تأكد أن أسماء الأعمدة هنا تطابق جدولك في phpMyAdmin
-    const sql = "INSERT INTO expenses (item, amount, expense_date) VALUES (?, ?, ?)";
-    db.query(sql, [item, amount, date], (err, res) => {
-      if (err) return reject(err);
-      resolve(res);
-    });
-  });
+export const addExpense = async (item, amount, date) => {
+    try {
+        const sql = "INSERT INTO expenses (item, amount, expense_date) VALUES (?, ?, ?)";
+        // مكتبة mysql2/promise تعيد مصفوفة [النتائج, الحقول]
+        const [result] = await db.query(sql, [item, amount, date]);
+        return result;
+    } catch (err) {
+        console.error("Error in addExpense model:", err.message);
+        throw err; // تمرير الخطأ ليتم التعامل معه في الـ Controller
+    }
 };
 
 // جلب المصروفات حسب التاريخ
-// في ملف الموديل أو السيرفر
-export const getExpensesByDate = (date) => {
-  return new Promise((resolve, reject) => {
-    // استخدمنا expense_date بناءً على قاعدة بياناتك
-    db.query("SELECT * FROM expenses WHERE expense_date = ?", [date], (err, data) => {
-      if (err) return reject(err);
-      resolve(data);
-    });
-  });
+export const getExpensesByDate = async (date) => {
+    try {
+        const sql = "SELECT * FROM expenses WHERE expense_date = ?";
+        const [rows] = await db.query(sql, [date]);
+        return rows;
+    } catch (err) {
+        console.error("Error in getExpensesByDate model:", err.message);
+        throw err;
+    }
 };
