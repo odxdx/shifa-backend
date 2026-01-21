@@ -1,7 +1,7 @@
 import mysql from 'mysql2/promise'; // لاحظ إضافة /promise لاستخدام async/await
 
 const db = mysql.createPool({
-    host: '193.203.168.81',
+    host: 'srv1424.hstgr.io',
     user: 'u634390245_shifa',
     password: 'Shifasmile123',
     database: 'u634390245_shifa',
@@ -24,3 +24,4 @@ db.getConnection()
     });
 
 export default db;
+
