@@ -1,7 +1,7 @@
 import db from '../db.js';
 
-// 1. جلب كافة المرضى
-export const fetchPatients = async (req, res) => {
+// 1. جلب كافة المرضى (تغيير الاسم من fetchPatients إلى getPatients)
+export const getPatients = async (req, res) => {
   try {
     const [rows] = await db.query("SELECT * FROM patients ORDER BY id DESC");
     res.json(rows); 
@@ -14,7 +14,6 @@ export const fetchPatients = async (req, res) => {
 export const createPatient = async (req, res) => {
   const { file_id, name, phone } = req.body; 
   try {
-    // ملاحظة: تأكد أن اسم العمود في القاعدة هو file_id وليس file_number
     await db.query(
       "INSERT INTO patients (file_id, name, phone) VALUES (?, ?, ?)",
       [file_id, name, phone]
@@ -25,11 +24,10 @@ export const createPatient = async (req, res) => {
   }
 };
 
-// 3. حذف مريض (تم تحويلها لـ async/await)
+// 3. حذف مريض
 export const deletePatient = async (req, res) => {
     const { id } = req.params;
     const sql = "DELETE FROM patients WHERE id = ?";
-    
     try {
         await db.query(sql, [id]);
         res.json({ message: "تم حذف المريض بنجاح" });
@@ -38,12 +36,27 @@ export const deletePatient = async (req, res) => {
     }
 };
 
-// 4. جلب الرقم التالي للملف (Next File ID) - إذا كان تطبيقك يستخدمه
-export const fetchNextFileId = async (req, res) => {
+// 4. جلب الرقم التالي (تغيير الاسم من fetchNextFileId إلى getNextFileId)
+export const getNextFileId = async (req, res) => {
     try {
-        const [rows] = await db.query("SELECT MAX(file_id) as maxId FROM patients");
-        const nextId = (rows[0].maxId || 0) + 1;
+        const [rows] = await db.query("SELECT MAX(CAST(file_id AS UNSIGNED)) as maxId FROM patients");
+        const nextId = (Number(rows[0].maxId) || 0) + 1;
         res.json({ nextId });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// 5. تعديل مريض (إضافة الدالة المفقودة لتجنب خطأ الـ Router)
+export const updatePatient = async (req, res) => {
+    const { id } = req.params;
+    const { name, phone, file_id } = req.body;
+    try {
+        await db.query(
+            "UPDATE patients SET name=?, phone=?, file_id=? WHERE id=?", 
+            [name, phone, file_id, id]
+        );
+        res.json({ message: "تم تحديث بيانات المريض بنجاح" });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
