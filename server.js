@@ -1,45 +1,39 @@
-const express = require('express');
-const cors = require('cors'); 
-const mysql = require('mysql2/promise');
-const path = require('path');
-const dbConfig = require('./db'); 
+import express from 'express';
+import cors from 'cors';
+import router from './routes/appRouter.js';
 
 const app = express();
+// 1. يفضل دائماً وضع كلمة المرور في متغير بيئة (Environment Variable)
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Shi159357fa';
 
-// إعداد CORS للسماح بالوصول من موقعك
+// 2. تحديث إعدادات CORS للسماح لموقعك فقط بالوصول للبيانات
 app.use(cors({
-    origin: 'https://shifasmile.com', 
+    origin: 'https://shifasmile.com',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type']
+    allowedHeaders: ['Content-Type', 'x-admin-password']
 }));
 
 app.use(express.json());
 
-const pool = mysql.createPool(dbConfig);
-
-// مسار المرضى - تم إزالة التحقق من كلمة المرور
-app.get('/api/patients', async (req, res) => {
-    try {
-        // استعلام لجلب كافة المرضى من الجدول
-        const [rows] = await pool.query('SELECT * FROM patients'); 
-        res.json(rows);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+// --- وظيفة الحماية (Auth Middleware) ---
+const checkAuth = (req, res, next) => {
+    const userPass = req.headers['x-admin-password'];
+    
+    if (userPass === ADMIN_PASSWORD) {
+        next();
+    } else {
+        console.warn(`محاولة وصول غير مصرح بها من: ${req.ip}`);
+        res.status(401).json({ error: "Access Denied: Wrong Password" });
     }
-});
+};
 
-// مسار الملخص اليومي من الـ View
-app.get('/api/daily-summary', async (req, res) => {
-    try {
-        // استعلام لجلب البيانات من الجدول الافتراضي
-        const [rows] = await pool.query('SELECT * FROM daily_summary'); 
-        res.json(rows[0] || {});
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
+// تطبيق الحماية
+app.use('/api', checkAuth, router);
 
+// 3. تغيير المنفذ (Port) ليتناسب مع إعدادات الاستضافة
+// الاستضافات غالباً ما تحدد المنفذ تلقائياً عبر process.env.PORT
 const PORT = process.env.PORT || 5001;
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server is running on port ${PORT}`);
+
+app.listen(PORT, () => {
+    console.log(`السيرfer يعمل بنجاح 🚀`);
 });
