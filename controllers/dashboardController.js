@@ -3,12 +3,26 @@ import db from '../db.js';
 // جلب الملخص اليومي
 export const getDailySummary = async (req, res) => {
     const { date } = req.query;
-    const sql = `SELECT * FROM daily_summary WHERE report_date = ?`;
+
+    // 1. استعلام لجلب الملخص العام (الدخل والمصروفات)
+    const summarySql = `SELECT income, expenses, net FROM daily_summary WHERE report_date = ?`;
+    
+    // 2. استعلام لحساب مجموع عمولات د. أحمد عصام لهذا اليوم تحديداً
+    const ahmedSql = `SELECT SUM(commission) as total_ahmed FROM visits WHERE doctor LIKE '%أحمد%' AND visit_date = ?`;
 
     try {
-        // استخدام await بدلاً من Callback
-        const [rows] = await db.query(sql, [date]);
-        res.json(rows.length > 0 ? rows[0] : { income: 0, expenses: 0, ahmed: 0, net: 0 });
+        const [summaryRows] = await db.query(summarySql, [date]);
+        const [ahmedRows] = await db.query(ahmedSql, [date]);
+
+        const mainStats = summaryRows[0] || { income: 0, expenses: 0, net: 0 };
+        const ahmedCommission = ahmedRows[0].total_ahmed || 0;
+
+        res.json({
+            income: mainStats.income,
+            expenses: mainStats.expenses,
+            ahmed: ahmedCommission, // هنا سيظهر الـ 600 المحسوبة في جدول الزيارات
+            net: mainStats.net
+        });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -81,3 +95,4 @@ export const getWeeklySummary = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
