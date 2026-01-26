@@ -19,9 +19,10 @@ export const createPatient = async (req, res) => {
       [file_id, name, phone]
     );
     res.status(201).json({ message: "تم إضافة المريض بنجاح" });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+  }catch (err) {
+    const errorMsg = err.code === 'ER_DUP_ENTRY' ? "رقم الملف موجود مسبقاً" : err.message;
+    res.status(500).json({ error: errorMsg });
+}
 };
 
 // 3. حذف مريض
@@ -61,3 +62,4 @@ export const updatePatient = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
