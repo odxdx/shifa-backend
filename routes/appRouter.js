@@ -23,11 +23,13 @@ router.put('/patients/:id', patientCtrl.updatePatient);
 // --- مسارات الزيارات (Visits) ---
 router.get('/visits', visit.getAllVisits); // تأكد أن الاسم في الملف هو getAllVisits
 router.post('/visits', visit.createVisit);
+router.put('/visits/:id', visit.updateVisit);
 router.delete('/visits/:id', visit.deleteVisit);
 
 // --- مسارات المصروفات (Expenses) ---
 router.get('/expenses/:date', exp.getExpenses); 
 router.post('/expenses', exp.addExpense);
+router.put('/expenses/:id', exp.updateExpense); // إضافة هذا السطر
 router.delete('/expenses/:id', exp.deleteExpense);
 
 // --- مسارات لوحة التحكم (Dashboard) ---
@@ -37,3 +39,4 @@ router.get('/weekly-summary', dash.getWeeklySummary);
 router.get('/doctor-stats', dash.getDoctorStats);
 
 export default router;
+
