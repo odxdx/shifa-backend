@@ -40,7 +40,26 @@ export const createVisit = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+// تحديث زيارة
+export const updateVisit = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { procedure_type, doctor, paid, total, payment_method } = req.body;
 
+        const query = `
+            UPDATE visits 
+            SET procedure_type = ?, doctor = ?, paid = ?, total = ?, payment_method = ? 
+            WHERE id = ?
+        `;
+        
+        const [result] = await db.query(query, [procedure_type, doctor, paid, total, payment_method, id]);
+
+        res.json({ success: true, message: "تم تحديث بيانات الزيارة" });
+    } catch (error) {
+        console.error("Update Visit Error:", error.message);
+        res.status(500).json({ error: "فشل في تحديث الزيارة" });
+    }
+};
 // 3. حذف زيارة
 export const deleteVisit = async (req, res) => {
     try {
@@ -53,3 +72,4 @@ export const deleteVisit = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
